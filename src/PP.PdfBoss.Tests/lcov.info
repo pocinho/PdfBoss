@@ -1,0 +1,457 @@
+SF:D:\dev\projects\PP.PdfBoss\src\PP.PdfBoss.Core\Constants.cs
+FN:8,System.Void PP.PdfBoss.Core.Constants::.cctor()
+FNDA:0,System.Void PP.PdfBoss.Core.Constants::.cctor()
+DA:9,0
+DA:10,0
+DA:11,0
+DA:12,0
+DA:14,0
+DA:15,0
+DA:16,0
+DA:17,0
+DA:18,0
+DA:19,0
+DA:27,0
+DA:28,0
+DA:29,0
+DA:30,0
+DA:31,0
+DA:40,0
+DA:41,0
+DA:42,0
+DA:43,0
+DA:44,0
+DA:45,0
+FN:22,System.Void PP.PdfBoss.Core.Constants/ProcessingTypes::.cctor()
+FNDA:0,System.Void PP.PdfBoss.Core.Constants/ProcessingTypes::.cctor()
+DA:23,0
+DA:24,0
+FN:34,System.Void PP.PdfBoss.Core.Constants/CompressingTypes::.cctor()
+FNDA:0,System.Void PP.PdfBoss.Core.Constants/CompressingTypes::.cctor()
+DA:35,0
+DA:36,0
+DA:37,0
+FN:48,System.Void PP.PdfBoss.Core.Constants/Defaults::.cctor()
+FNDA:0,System.Void PP.PdfBoss.Core.Constants/Defaults::.cctor()
+DA:49,0
+DA:50,0
+DA:51,0
+LF:29
+LH:0
+BRF:0
+BRH:0
+FNF:4
+FNH:0
+end_of_record
+SF:D:\dev\projects\PP.PdfBoss\src\PP.PdfBoss.Core\Models\Operation.cs
+FN:6,System.String PP.PdfBoss.Core.Models.Operation::get_Message()
+FNDA:0,System.String PP.PdfBoss.Core.Models.Operation::get_Message()
+DA:7,0
+FN:19,System.Void PP.PdfBoss.Core.Models.Operation::SetSucceeded(System.String)
+FNDA:0,System.Void PP.PdfBoss.Core.Models.Operation::SetSucceeded(System.String)
+DA:20,0
+DA:21,0
+DA:22,0
+DA:23,0
+FN:25,System.Void PP.PdfBoss.Core.Models.Operation::SetFailed(System.String)
+FNDA:0,System.Void PP.PdfBoss.Core.Models.Operation::SetFailed(System.String)
+DA:26,0
+DA:27,0
+DA:28,0
+DA:29,0
+FN:31,System.Boolean PP.PdfBoss.Core.Models.Operation::get_HasSucceeded()
+FNDA:0,System.Boolean PP.PdfBoss.Core.Models.Operation::get_HasSucceeded()
+DA:32,0
+FN:34,System.Boolean PP.PdfBoss.Core.Models.Operation::get_HasFailed()
+FNDA:0,System.Boolean PP.PdfBoss.Core.Models.Operation::get_HasFailed()
+DA:35,0
+FN:8,System.Void PP.PdfBoss.Core.Models.Operation::.ctor()
+FNDA:0,System.Void PP.PdfBoss.Core.Models.Operation::.ctor()
+DA:9,0
+DA:10,0
+DA:11,0
+FN:12,System.Void PP.PdfBoss.Core.Models.Operation::.ctor(System.String,System.Boolean)
+FNDA:0,System.Void PP.PdfBoss.Core.Models.Operation::.ctor(System.String,System.Boolean)
+DA:13,0
+DA:14,0
+DA:15,0
+DA:16,0
+DA:17,0
+FN:39,T PP.PdfBoss.Core.Models.Operation`1::get_Result()
+FNDA:0,T PP.PdfBoss.Core.Models.Operation`1::get_Result()
+DA:40,0
+FN:53,System.Void PP.PdfBoss.Core.Models.Operation`1::SetResult(T)
+FNDA:0,System.Void PP.PdfBoss.Core.Models.Operation`1::SetResult(T)
+DA:54,0
+DA:55,0
+DA:56,0
+FN:41,System.Void PP.PdfBoss.Core.Models.Operation`1::.ctor()
+FNDA:0,System.Void PP.PdfBoss.Core.Models.Operation`1::.ctor()
+DA:42,0
+DA:43,0
+DA:44,0
+FN:45,System.Void PP.PdfBoss.Core.Models.Operation`1::.ctor(T,System.String,System.Boolean)
+FNDA:0,System.Void PP.PdfBoss.Core.Models.Operation`1::.ctor(T,System.String,System.Boolean)
+DA:46,0
+DA:47,0
+DA:48,0
+DA:49,0
+DA:50,0
+DA:51,0
+LF:32
+LH:0
+BRF:0
+BRH:0
+FNF:11
+FNH:0
+end_of_record
+SF:D:\dev\projects\PP.PdfBoss\src\PP.PdfBoss.Core\Models\Tools.cs
+FN:2,System.Int32 PP.PdfBoss.Core.Models.FileDto::get_Order()
+FNDA:0,System.Int32 PP.PdfBoss.Core.Models.FileDto::get_Order()
+DA:3,0
+FN:4,System.Int32 PP.PdfBoss.Core.Models.ProcessModeDto::get_Id()
+FNDA:0,System.Int32 PP.PdfBoss.Core.Models.ProcessModeDto::get_Id()
+DA:5,0
+LF:2
+LH:0
+BRF:0
+BRH:0
+FNF:2
+FNH:0
+end_of_record
+SF:D:\dev\projects\PP.PdfBoss\src\PP.PdfBoss.Core\MessageTypes\ConsoleMessage.cs
+FN:4,System.Void PP.PdfBoss.Core.MessageTypes.ConsoleMessage::.ctor(System.String)
+FNDA:0,System.Void PP.PdfBoss.Core.MessageTypes.ConsoleMessage::.ctor(System.String)
+DA:5,0
+LF:1
+LH:0
+BRF:0
+BRH:0
+FNF:1
+FNH:0
+end_of_record
+SF:D:\dev\projects\PP.PdfBoss\src\PP.PdfBoss.Core\MessageTypes\ProgressMessage.cs
+FN:4,System.Void PP.PdfBoss.Core.MessageTypes.ProgressMessage::.ctor(System.Int32)
+FNDA:0,System.Void PP.PdfBoss.Core.MessageTypes.ProgressMessage::.ctor(System.Int32)
+DA:5,0
+LF:1
+LH:0
+BRF:0
+BRH:0
+FNF:1
+FNH:0
+end_of_record
+SF:D:\dev\projects\PP.PdfBoss\src\PP.PdfBoss.Core\MessageTypes\StatusInfoMessage.cs
+FN:4,System.Void PP.PdfBoss.Core.MessageTypes.StatusInfoMessage::.ctor(System.String)
+FNDA:0,System.Void PP.PdfBoss.Core.MessageTypes.StatusInfoMessage::.ctor(System.String)
+DA:5,0
+LF:1
+LH:0
+BRF:0
+BRH:0
+FNF:1
+FNH:0
+end_of_record
+SF:D:\dev\projects\PP.PdfBoss\src\PP.PdfBoss.Core\MessageTypes\StatusOperationMessage.cs
+FN:4,System.Void PP.PdfBoss.Core.MessageTypes.StatusOperationMessage::.ctor(System.String)
+FNDA:0,System.Void PP.PdfBoss.Core.MessageTypes.StatusOperationMessage::.ctor(System.String)
+DA:5,0
+LF:1
+LH:0
+BRF:0
+BRH:0
+FNF:1
+FNH:0
+end_of_record
+SF:D:\dev\projects\PP.PdfBoss\src\PP.PdfBoss.Core\Dtos\AppSettings.cs
+FN:7,System.Int32 PP.PdfBoss.Core.Dtos.AppSettings::get_ProcessMode()
+FNDA:0,System.Int32 PP.PdfBoss.Core.Dtos.AppSettings::get_ProcessMode()
+DA:8,0
+FN:10,System.Int32 PP.PdfBoss.Core.Dtos.AppSettings::get_CompressionMode()
+FNDA:0,System.Int32 PP.PdfBoss.Core.Dtos.AppSettings::get_CompressionMode()
+DA:11,0
+FN:13,System.String PP.PdfBoss.Core.Dtos.AppSettings::get_Suffix()
+FNDA:0,System.String PP.PdfBoss.Core.Dtos.AppSettings::get_Suffix()
+DA:14,0
+FN:16,System.String PP.PdfBoss.Core.Dtos.AppSettings::get_MergedName()
+FNDA:0,System.String PP.PdfBoss.Core.Dtos.AppSettings::get_MergedName()
+DA:17,0
+FN:19,System.Boolean PP.PdfBoss.Core.Dtos.AppSettings::get_IsOutputFolderInUse()
+FNDA:0,System.Boolean PP.PdfBoss.Core.Dtos.AppSettings::get_IsOutputFolderInUse()
+DA:20,0
+FN:22,System.String PP.PdfBoss.Core.Dtos.AppSettings::get_OutputFolderName()
+FNDA:0,System.String PP.PdfBoss.Core.Dtos.AppSettings::get_OutputFolderName()
+DA:23,0
+LF:6
+LH:0
+BRF:0
+BRH:0
+FNF:6
+FNH:0
+end_of_record
+SF:D:\dev\projects\PP.PdfBoss\src\PP.PdfBoss.Core\Dtos\Configuration.cs
+FN:7,PP.PdfBoss.Core.Dtos.AppSettings PP.PdfBoss.Core.Dtos.Configuration::get_AppSettings()
+FNDA:0,PP.PdfBoss.Core.Dtos.AppSettings PP.PdfBoss.Core.Dtos.Configuration::get_AppSettings()
+DA:8,0
+FN:10,PP.PdfBoss.Core.Dtos.Dashboard PP.PdfBoss.Core.Dtos.Configuration::get_Dashboard()
+FNDA:0,PP.PdfBoss.Core.Dtos.Dashboard PP.PdfBoss.Core.Dtos.Configuration::get_Dashboard()
+DA:11,0
+LF:2
+LH:0
+BRF:0
+BRH:0
+FNF:2
+FNH:0
+end_of_record
+SF:D:\dev\projects\PP.PdfBoss\src\PP.PdfBoss.Core\Dtos\Dashboard.cs
+FN:4,System.UInt32 PP.PdfBoss.Core.Dtos.Dashboard::get_TotalFilesProcessed()
+FNDA:0,System.UInt32 PP.PdfBoss.Core.Dtos.Dashboard::get_TotalFilesProcessed()
+DA:5,0
+FN:6,System.Decimal PP.PdfBoss.Core.Dtos.Dashboard::get_TotalMegabytesProcessed()
+FNDA:0,System.Decimal PP.PdfBoss.Core.Dtos.Dashboard::get_TotalMegabytesProcessed()
+DA:7,0
+FN:8,System.Decimal PP.PdfBoss.Core.Dtos.Dashboard::get_TotalMegabytesOptimised()
+FNDA:0,System.Decimal PP.PdfBoss.Core.Dtos.Dashboard::get_TotalMegabytesOptimised()
+DA:9,0
+FN:10,System.Decimal PP.PdfBoss.Core.Dtos.Dashboard::get_TotalMegabytesSaved()
+FNDA:0,System.Decimal PP.PdfBoss.Core.Dtos.Dashboard::get_TotalMegabytesSaved()
+DA:11,0
+LF:4
+LH:0
+BRF:0
+BRH:0
+FNF:4
+FNH:0
+end_of_record
+SF:D:\dev\projects\PP.PdfBoss\src\PP.PdfBoss.Data\Services\ConfigurationService.cs
+FN:9,System.Void PP.PdfBoss.Data.Services.ConfigurationService::.ctor(Microsoft.Extensions.Logging.ILogger`1<PP.PdfBoss.Data.Services.ConfigurationService>)
+FNDA:0,System.Void PP.PdfBoss.Data.Services.ConfigurationService::.ctor(Microsoft.Extensions.Logging.ILogger`1<PP.PdfBoss.Data.Services.ConfigurationService>)
+DA:10,0
+FN:12,System.Void PP.PdfBoss.Data.Services.ConfigurationService/<LoadConfigurationAsync>d__2::MoveNext()
+FNDA:0,System.Void PP.PdfBoss.Data.Services.ConfigurationService/<LoadConfigurationAsync>d__2::MoveNext()
+DA:13,0
+DA:14,0
+DA:15,0
+DA:16,0
+DA:17,0
+DA:18,0
+DA:19,0
+DA:20,0
+DA:21,0
+DA:22,0
+DA:23,0
+DA:24,0
+DA:25,0
+DA:26,0
+DA:27,0
+DA:28,0
+DA:29,0
+DA:30,0
+DA:31,0
+DA:34,0
+DA:35,0
+DA:36,0
+DA:37,0
+DA:38,0
+DA:39,0
+DA:41,0
+DA:42,0
+DA:43,0
+DA:44,0
+DA:45,0
+DA:46,0
+DA:47,0
+DA:48,0
+DA:49,0
+DA:51,0
+DA:52,0
+BRDA:35,181,0,0
+BRDA:35,181,1,0
+FN:54,System.Void PP.PdfBoss.Data.Services.ConfigurationService/<SaveConfigurationAsync>d__3::MoveNext()
+FNDA:0,System.Void PP.PdfBoss.Data.Services.ConfigurationService/<SaveConfigurationAsync>d__3::MoveNext()
+DA:55,0
+DA:57,0
+DA:58,0
+DA:59,0
+DA:60,0
+DA:61,0
+DA:62,0
+DA:63,0
+DA:64,0
+DA:65,0
+LF:47
+LH:0
+BRF:2
+BRH:0
+FNF:3
+FNH:0
+end_of_record
+SF:D:\dev\projects\PP.PdfBoss\src\PP.PdfBoss.Data\Services\PdfService.cs
+FN:168,System.Threading.Tasks.Task`1<System.Int32> PP.PdfBoss.Data.Services.PdfService::RunProcessAsync(System.String)
+FNDA:0,System.Threading.Tasks.Task`1<System.Int32> PP.PdfBoss.Data.Services.PdfService::RunProcessAsync(System.String)
+DA:169,0
+DA:170,0
+DA:172,0
+DA:173,0
+DA:174,0
+DA:175,0
+DA:176,0
+DA:177,0
+DA:179,0
+DA:180,0
+DA:181,0
+DA:182,0
+DA:183,0
+DA:185,0
+DA:186,0
+DA:187,0
+DA:188,0
+DA:189,0
+DA:191,0
+DA:193,0
+DA:194,0
+FN:13,System.Void PP.PdfBoss.Data.Services.PdfService::.ctor(Microsoft.Extensions.Logging.ILogger`1<PP.PdfBoss.Core.Interfaces.IPdfService>,PP.PdfBoss.Core.Interfaces.IAppSettingsViewModel,PP.PdfBoss.Core.Interfaces.IConfigurationService)
+FNDA:0,System.Void PP.PdfBoss.Data.Services.PdfService::.ctor(Microsoft.Extensions.Logging.ILogger`1<PP.PdfBoss.Core.Interfaces.IPdfService>,PP.PdfBoss.Core.Interfaces.IAppSettingsViewModel,PP.PdfBoss.Core.Interfaces.IConfigurationService)
+DA:14,0
+DA:15,0
+DA:16,0
+DA:17,0
+FN:19,System.Void PP.PdfBoss.Data.Services.PdfService/<Process>d__4::MoveNext()
+FNDA:0,System.Void PP.PdfBoss.Data.Services.PdfService/<Process>d__4::MoveNext()
+DA:20,0
+DA:22,0
+DA:23,0
+DA:25,0
+DA:26,0
+DA:27,0
+DA:28,0
+DA:30,0
+DA:31,0
+DA:33,0
+DA:34,0
+DA:37,0
+DA:38,0
+DA:40,0
+DA:41,0
+DA:42,0
+DA:43,0
+DA:44,0
+DA:45,0
+DA:47,0
+DA:48,0
+DA:49,0
+DA:50,0
+DA:51,0
+DA:53,0
+DA:54,0
+DA:56,0
+DA:57,0
+DA:59,0
+DA:60,0
+DA:62,0
+DA:63,0
+DA:64,0
+DA:66,0
+DA:67,0
+DA:68,0
+DA:69,0
+DA:71,0
+DA:72,0
+DA:73,0
+DA:75,0
+DA:76,0
+DA:77,0
+DA:79,0
+DA:80,0
+DA:82,0
+DA:83,0
+DA:85,0
+DA:86,0
+DA:88,0
+DA:89,0
+DA:90,0
+DA:92,0
+DA:93,0
+DA:94,0
+DA:95,0
+DA:97,0
+DA:98,0
+DA:99,0
+DA:100,0
+DA:101,0
+DA:102,0
+DA:104,0
+DA:105,0
+DA:107,0
+DA:108,0
+DA:110,0
+DA:111,0
+DA:113,0
+DA:114,0
+DA:115,0
+DA:117,0
+DA:118,0
+DA:119,0
+DA:120,0
+DA:122,0
+DA:123,0
+DA:124,0
+DA:125,0
+DA:126,0
+DA:128,0
+DA:129,0
+DA:131,0
+DA:132,0
+DA:133,0
+DA:135,0
+DA:136,0
+DA:138,0
+DA:139,0
+DA:141,0
+DA:142,0
+DA:144,0
+DA:145,0
+DA:146,0
+DA:148,0
+DA:149,0
+DA:150,0
+DA:151,0
+DA:153,0
+DA:155,0
+DA:156,0
+DA:157,0
+DA:158,0
+DA:160,0
+DA:161,0
+DA:162,0
+DA:163,0
+DA:164,0
+DA:165,0
+DA:166,0
+BRDA:40,378,0,0
+BRDA:40,378,1,0
+BRDA:40,399,0,0
+BRDA:42,423,0,0
+BRDA:42,423,1,0
+BRDA:47,456,0,0
+BRDA:49,1167,1,0
+BRDA:49,1167,0,0
+BRDA:47,456,1,0
+BRDA:75,1629,1,0
+BRDA:75,1629,0,0
+BRDA:40,399,1,0
+BRDA:98,2009,0,0
+BRDA:100,2709,1,0
+BRDA:100,2709,0,0
+BRDA:98,2009,1,0
+BRDA:123,2772,0,0
+BRDA:123,2772,1,0
+BRDA:131,3054,1,0
+BRDA:131,3054,0,0
+LF:135
+LH:0
+BRF:20
+BRH:0
+FNF:3
+FNH:0
+end_of_record

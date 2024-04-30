@@ -1,0 +1,214 @@
+﻿<UserControl x:Class="PP.PdfBoss.Views.AppSettings.AppSettingsView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:PP.PdfBoss.Views.AppSettings"
+             xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+             xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
+             mc:Ignorable="d"
+             DataContext="{Binding AppSettingsViewModel, Source={StaticResource ViewModelLocator}}">
+
+    <UserControl.Resources>
+        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
+    </UserControl.Resources>
+    
+    <b:Interaction.Triggers>
+        <b:EventTrigger EventName="Loaded">
+            <b:InvokeCommandAction Command="{Binding LoadedCommand}" />
+        </b:EventTrigger>
+    </b:Interaction.Triggers>
+    
+    <materialDesign:DialogHost Identifier="RootDialog"
+                               DialogTheme="Inherit"
+                               CloseOnClickAway="False">
+
+        <ScrollViewer HorizontalScrollBarVisibility="Auto"
+                      VerticalScrollBarVisibility="Auto">
+
+
+            <StackPanel Orientation="Vertical"
+                        Margin="20"
+                        VerticalAlignment="Top"
+                        HorizontalAlignment="Center">
+
+                <StackPanel Orientation="Horizontal"
+                            Margin="0,0,0,20">
+
+                    <Label Width="200"
+                           Content="Select Process Mode:"
+                           HorizontalAlignment="Left"
+                           VerticalAlignment="Bottom"/>
+
+                    <ComboBox Width="250"
+                              HorizontalAlignment="Right" ItemsSource="{Binding ProcessModeList, UpdateSourceTrigger=PropertyChanged}"
+                              SelectedItem="{Binding ProcessModeItem, UpdateSourceTrigger=PropertyChanged}"
+                              SelectedValue="{Binding ProcessModeValue, UpdateSourceTrigger=PropertyChanged}"
+                              SelectedValuePath="Id"
+                              DisplayMemberPath="Mode"/>
+                </StackPanel>
+
+                <StackPanel Orientation="Horizontal"
+                            Margin="0,0,0,20">
+
+                    <Label Width="200"
+                           Content="Select Compression Mode:"
+                           VerticalAlignment="Bottom"/>
+
+                    <ComboBox Width="250"
+                              ItemsSource="{Binding CompressionModeList, UpdateSourceTrigger=PropertyChanged}"
+                              SelectedItem="{Binding CompressionModeItem, UpdateSourceTrigger=PropertyChanged}"
+                              SelectedValue="{Binding CompressionModeValue, UpdateSourceTrigger=PropertyChanged}"
+                              SelectedValuePath="Id"
+                              DisplayMemberPath="Mode"/>
+                </StackPanel>
+
+                <StackPanel Orientation="Horizontal"
+                            Margin="0,0,0,20">
+
+                    <Label Width="200"
+                           Content="Suffix for individual file mode:"
+                           VerticalAlignment="Bottom"/>
+
+                    <TextBox Width="200"
+                                 IsReadOnly="True"
+                                 VerticalAlignment="Bottom"
+                                 Text="{Binding SuffixName}"
+                                 ToolTip="{Binding SuffixName}"/>
+
+                    <TextBox Width="50"
+                             IsReadOnly="True"
+                             VerticalAlignment="Bottom"
+                             Text=".PDF"/>
+
+                    <Button Margin="10,0,0,0"
+                            Content="Select"
+                            Width="100"
+                            Command="{Binding SelectSuffixNameCommand}"/>
+                </StackPanel>
+                
+                <StackPanel Orientation="Horizontal"
+                            Margin="0,0,0,20">
+
+                    <Label Width="200"
+                           Content="Name for merged file mode:"
+                           VerticalAlignment="Bottom"/>
+
+                    <TextBox Width="200"
+                             IsReadOnly="True"
+                             VerticalAlignment="Bottom"
+                             Text="{Binding MergedName}"
+                             ToolTip="{Binding MergedName}"/>
+
+                    <TextBox Width="50"
+                             IsReadOnly="True"
+                             VerticalAlignment="Bottom"
+                             Text=".PDF"/>
+
+                    <Button Margin="10,0,0,0"
+                            Content="Select"
+                            Width="100"
+                            Command="{Binding SelectMergedNameCommand}"/>
+                </StackPanel>
+
+                <StackPanel Orientation="Horizontal"
+                            Margin="0,0,0,20">
+
+                    <Label Width="200"
+                           Content="Enable Output Folder:"
+                           VerticalAlignment="Bottom"/>
+
+                    <ToggleButton VerticalAlignment="Bottom"
+                                  IsChecked="{Binding IsOutputFolderInUse}"
+                                  Style="{StaticResource MaterialDesignSwitchDarkToggleButton}"
+                                  ToolTip="Enable Output Folder"/>
+                </StackPanel>
+
+                <StackPanel Orientation="Horizontal"
+                            Margin="0,0,0,20"
+                            Visibility="{Binding IsOutputFolderInUse, Converter={StaticResource BooleanToVisibilityConverter}}">
+
+                    <Label Width="200"
+                           Content="Select Output Folder:"
+                           VerticalAlignment="Bottom"/>
+
+                    <TextBox Width="250"
+                             IsReadOnly="True"
+                             VerticalAlignment="Bottom"
+                             Text="{Binding OutputFolderPath}"
+                             ToolTip="{Binding OutputFolderPath}"
+                             IsEnabled="{Binding IsOutputFolderInUse}"/>
+
+                    <Button Margin="10,0,0,0"
+                            Content="Select"
+                            Width="100"
+                            Command="{Binding SelectOutputFolderCommand}"
+                            IsEnabled="{Binding IsOutputFolderInUse}"/>
+                </StackPanel>
+
+                <StackPanel Orientation="Horizontal"
+                            Margin="0,0,0,20"
+                            Visibility="{Binding IsNoticeVisible, Converter={StaticResource BooleanToVisibilityConverter}}">
+
+                    <materialDesign:PackIcon Kind="InfoCircleOutline"
+                                             Width="30"
+                                             Height="30"
+                                             Margin="0,0,20,0"
+                                             Foreground="DodgerBlue"/>
+                    
+                    <TextBox IsReadOnly="True"
+                             VerticalAlignment="Bottom"
+                             Text="{Binding NoticeText}"/>
+                </StackPanel>
+                
+                <StackPanel Orientation="Horizontal"
+                            Margin="0,0,0,20">
+
+                    <Label Width="200"
+                           Content="Toggle light/dark mode:"
+                           VerticalAlignment="Bottom"/>
+
+                    <ToggleButton VerticalAlignment="Bottom"
+                                  IsChecked="{Binding IsDarkModeEnabled}"
+                                  Style="{StaticResource MaterialDesignSwitchDarkToggleButton}"
+                                  ToolTip="Toggle light/dark mode"/>
+                </StackPanel>
+
+                <StackPanel Orientation="Horizontal"
+                            Margin="0,0,0,20">
+
+                    <Label Width="200"
+                           Content="Use GhostScript:"
+                           VerticalAlignment="Bottom"/>
+
+                    <ToggleButton VerticalAlignment="Bottom"
+                                  IsChecked="{Binding IsGsEnabled}"
+                                  Style="{StaticResource MaterialDesignSwitchDarkToggleButton}"
+                                  ToolTip="Use GhostScript"/>
+                </StackPanel>
+
+                <StackPanel Orientation="Horizontal"
+                            Margin="0,0,0,20"
+                            Visibility="{Binding IsGsEnabled, Converter={StaticResource BooleanToVisibilityConverter}}">
+
+                    <Label Width="200"
+                           Content="Path to GhostScript:"
+                           VerticalAlignment="Bottom"/>
+
+                    <TextBox Width="250"
+                             IsReadOnly="True"
+                             VerticalAlignment="Bottom"
+                             Text="{Binding GhostScriptPath}"
+                             ToolTip="{Binding GhostScriptPath}"
+                             IsEnabled="{Binding IsGsEnabled}"/>
+
+                    <Button Margin="10,0,0,0"
+                            Content="Select"
+                            Width="100"
+                            Command="{Binding SelectGhostScriptPathCommand}"
+                            IsEnabled="{Binding IsGsEnabled}"/>
+                </StackPanel>
+            </StackPanel>            
+        </ScrollViewer>
+    </materialDesign:DialogHost>
+</UserControl>

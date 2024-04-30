@@ -1,0 +1,20 @@
+{
+    // See https://go.microsoft.com/fwlink/?LinkId=733558
+    // for the documentation about the tasks.json format
+    "version": "2.0.0",
+    "tasks": [
+        {
+            // Before "Generate coverage stats":
+            // dotnet test /p:CollectCoverage=true /p:CoverletOutputFormat=lcov /p:CoverletOutput=lcov.info
+            //
+            "label": "Generate coverage stats",
+            "command": "reportgenerator",
+            "type": "shell",
+            "args": [
+                "-reports:${workspaceFolder}/src/PP.PdfBoss.Tests/lcov.info",
+                "-targetdir:${workspaceFolder}/src/PP.PdfBoss.Tests/covstats"
+            ],
+            "problemMatcher": []
+        }
+    ]
+}

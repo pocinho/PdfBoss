@@ -1,0 +1,125 @@
+﻿<UserControl x:Class="PP.PdfBoss.Views.Home.ToolsView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:PP.PdfBoss.Views.Home"
+             xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls" 
+             xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
+             mc:Ignorable="d"
+             d:DesignHeight="450" d:DesignWidth="800"
+             DataContext="{Binding ToolsViewModel, Source={StaticResource ViewModelLocator}}">
+
+    <b:Interaction.Triggers>
+        <b:EventTrigger EventName="Loaded">
+            <b:InvokeCommandAction Command="{Binding LoadedCommand}" />
+        </b:EventTrigger>
+    </b:Interaction.Triggers>
+    
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="50"/>
+        </Grid.RowDefinitions>
+
+        
+        
+        <ScrollViewer Grid.Row="0"
+                      HorizontalScrollBarVisibility="Auto"
+                      VerticalScrollBarVisibility="Auto">
+            <DataGrid Grid.Row="1" ItemsSource="{Binding FileList, UpdateSourceTrigger=PropertyChanged}"
+                      SelectedItem="{Binding FileItem, UpdateSourceTrigger=PropertyChanged}"
+                      IsReadOnly="True"
+                      MaxColumnWidth="390"
+                      IsHitTestVisible="True"
+                      AutoGenerateColumns="False">
+                <DataGrid.ContextMenu>
+                    <ContextMenu>
+                        <MenuItem Header="Order Up" Command="{Binding GridOrderUpCommand}" />
+                        <MenuItem Header="Order Down" Command="{Binding GridOrderDownCommand}" />
+                        <MenuItem Header="Remove" Command="{Binding GridRemoveCommand}" />
+                        <MenuItem Header="Split Pages" Command="{Binding GridSplitPagesCommand}" />
+                    </ContextMenu>
+                </DataGrid.ContextMenu>
+                <DataGrid.Columns>
+                    <DataGridTemplateColumn Header="Order">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding Order}"
+                                           ToolTipService.ToolTip="{Binding Order}" />
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                    <DataGridTemplateColumn Header="File">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding FileName}"
+                                           ToolTipService.ToolTip="{Binding FileName}" />
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                    <DataGridTemplateColumn Header="Path">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding FilePath}"
+                                           ToolTipService.ToolTip="{Binding FilePath}" />
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                </DataGrid.Columns>
+            </DataGrid>
+        </ScrollViewer>
+
+        <StackPanel Grid.Row="1"
+                    Orientation="Horizontal"
+                    HorizontalAlignment="Left">
+
+            <Button Width="32"
+                    Margin="0, 0, 0, 0"
+                    Command="{Binding GridOrderUpCommand}"
+                    Style="{StaticResource MaterialDesignRaisedButton}">
+                <materialDesign:PackIcon Kind="ArrowUpBoldBox" Width="32" Height="32" Margin="-20" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+            </Button>
+
+            <Button Width="32"
+                    Margin="5, 0, 0, 0"
+                    Command="{Binding GridOrderDownCommand}"
+                    Style="{StaticResource MaterialDesignRaisedButton}">
+                <materialDesign:PackIcon Kind="ArrowDownBoldBox" Width="32" Height="32" Margin="-20" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+            </Button>
+
+            <Button Width="32"
+                    Margin="5, 0, 0, 0"
+                    Command="{Binding GridRemoveCommand}"
+                    Style="{StaticResource MaterialDesignRaisedButton}">
+                <materialDesign:PackIcon Kind="CloseBox" Width="32" Height="32" Margin="-20" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+            </Button>
+        </StackPanel>
+
+        <StackPanel Grid.Row="1"
+                    Orientation="Horizontal"
+                    HorizontalAlignment="Right">
+            
+            <Button Content="Load Files"
+                    Margin="5"
+                    Width="100"
+                    Command="{Binding LoadFilesCommand}"/>
+
+            <Button Content="Optimise"
+                    Margin="5"
+                    Width="100"
+                    HorizontalAlignment="Left"
+                    Command="{Binding OptimiseCommand}"
+                    materialDesign:ButtonProgressAssist.IsIndeterminate="False"
+                    materialDesign:ButtonProgressAssist.IsIndicatorVisible="{Binding IsProcessing}"
+                    materialDesign:ButtonProgressAssist.Value="{Binding ProgressValue}"/>
+
+            <Button Content="Clear"
+                    Margin="5"
+                    Width="100"
+                    HorizontalAlignment="Left"
+                    Command="{Binding ClearCommand}"/>
+        </StackPanel>
+    </Grid>
+</UserControl>

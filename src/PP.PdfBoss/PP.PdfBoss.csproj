@@ -1,0 +1,42 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<OutputType>WinExe</OutputType>
+		<TargetFramework>net8.0-windows</TargetFramework>
+		<Nullable>enable</Nullable>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<UseWPF>true</UseWPF>
+		<ApplicationIcon>Resources\icon.ico</ApplicationIcon>
+		<AssemblyName>PdfBoss</AssemblyName>
+		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+		<Configurations>Debug;Release;Debug-x64</Configurations>
+		<Platforms>AnyCPU;x64</Platforms>
+	</PropertyGroup>
+
+	<ItemGroup>
+	  <Content Include="Resources\icon.ico" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<PackageReference Include="CommunityToolkit.Diagnostics" />
+		<PackageReference Include="CommunityToolkit.Mvvm" />
+		<PackageReference Include="MahApps.Metro" />
+		<PackageReference Include="MahApps.Metro.IconPacks.FontAwesome" />
+		<PackageReference Include="MaterialDesignThemes" />
+		<PackageReference Include="MaterialDesignThemes.MahApps" />
+		<PackageReference Include="Microsoft.Extensions.DependencyInjection" />
+		<PackageReference Include="Microsoft.Extensions.Hosting" />
+		<PackageReference Include="Microsoft.Xaml.Behaviors.Wpf" />
+		<PackageReference Include="NLog" />
+		<PackageReference Include="NLog.Extensions.Logging" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <ProjectReference Include="..\PP.PdfBoss.Core\PP.PdfBoss.Core.csproj" />
+	  <ProjectReference Include="..\PP.PdfBoss.Data\PP.PdfBoss.Data.csproj" />
+	  <ProjectReference Include="..\PP.PdfBoss.Util\PP.PdfBoss.Util.csproj" />
+	  <ProjectReference Include="..\PP.PdfBoss.ViewModels\PP.PdfBoss.ViewModels.csproj" />
+	  <ProjectReference Include="..\PP.PdfBoss.Views\PP.PdfBoss.Views.csproj" />
+	</ItemGroup>
+
+</Project>
