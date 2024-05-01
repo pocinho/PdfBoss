@@ -16,6 +16,7 @@
  */
 
 using System.Collections.Concurrent;
+using System.ComponentModel.DataAnnotations;
 using System.Text;
 
 using CommunityToolkit.Mvvm.Messaging;
@@ -29,251 +30,43 @@ using PP.PdfBoss.Core.Models;
 
 using QPdfNet.Enums;
 
-using static PP.PdfBoss.Core.Constants;
-
 namespace PP.PdfBoss.Data.Services;
 
 public class PdfBossService(
-    ILogger<IPdfBossService> logger,
+    ILogger<PdfBossService> logger,
     IConfigurationService configurationService) : IPdfBossService
 {
-    public async Task OptimiseAsync(IEnumerable<FileDto> fileList, CancellationToken cancellationToken = default)
+    private ConfigurationDto? _settings;
+    private ConcurrentBag<Operation<ProcessResultDto>>? _filesProcessed;
+
+    public async Task ProcessAsync(IEnumerable<FileDto> fileList, CancellationToken cancellationToken = default)
     {
         try
         {
-            ConfigurationDto settings = await configurationService.LoadConfigurationAsync(cancellationToken);
+            _settings = await configurationService.LoadConfigurationAsync(cancellationToken);
+            _filesProcessed = [];
 
-            string command = string.Empty;
-            if (settings.IsGhostScriptEnabled)
+            if (_settings.ProcessMode == Core.Constants.ProcessMode.MergeFiles)
             {
-                command = settings.CompressionMode switch
-                {
-                    CompressionType.High => "/screen",
-                    CompressionType.Medium => "/ebook",
-                    CompressionType.Low => "/printer",
-                    _ => "/ebook",
-                };
-            }
-
-            ConcurrentBag<Operation<ProcessResultDto>> filesProcessed = [];
-
-            uint totalFiles = (uint)fileList.Count();
-            uint fileCount = 1;
-
-            if (settings.IsOutputFolderInUse && !string.IsNullOrEmpty(settings.OutputFolderPath))
-            {
-                if (!Path.Exists(settings.OutputFolderPath))
-                {
-                    Directory.CreateDirectory(settings.OutputFolderPath);
-                }
-
-                if (settings.ProcessMode == ProcessingType.IndividualFiles)
-                {
-                    foreach (FileDto file in fileList)
-                    {
-                        WeakReferenceMessenger.Default.Send(new ProgressMessage(fileCount * 100 / totalFiles + 1));
-                        WeakReferenceMessenger.Default.Send(new StatusOperationMessage($"Processing file {fileCount++} of {totalFiles}..."));
-
-                        Operation<ProcessResultDto> resultOp = new();
-
-                        string fileName = Path.Combine(settings.OutputFolderPath, file.FileName.TrimEnd(".pdf".ToCharArray()));
-                        string targetFile = $"{fileName}{settings.Suffix}.pdf";
-
-                        if (settings.IsGhostScriptEnabled && File.Exists(settings.GhostScriptPath))
-                        {
-                            string firstPass = $"{targetFile}.tmp";
-
-                            await RunGsOptimiserAsync(settings.GhostScriptPath,
-                                $" -sDEVICE=pdfwrite -dCompatibilityLevel=\"1.7\" -dPDFSETTINGS={command} -dNOPAUSE -dQUIET -dBATCH -sOutputFile=\"{firstPass}\" \"{file.FilePath}\" ");
-
-                            Operation<FileInfo> op = await RunOptimiserAsync(filePathIn: firstPass, filePathOut: targetFile, settings.CompressionMode);
-                            if (op.HasSucceeded)
-                            {
-                                FileInfo info = new(file.FilePath);
-                                resultOp.SetResult(new ProcessResultDto(
-                                        TotalBytesProcessed: info.Length,
-                                        TotalBytesOptimized: op.Result!.Length));
-                            }
-
-                            if (File.Exists(firstPass))
-                                File.Delete(firstPass);
-                        }
-                        else
-                        {
-                            Operation<FileInfo> op = await RunOptimiserAsync(filePathIn: file.FilePath, filePathOut: targetFile, settings.CompressionMode);
-                            if (op.HasSucceeded)
-                            {
-                                FileInfo info = new(file.FilePath);
-                                resultOp.SetResult(new ProcessResultDto(
-                                        TotalBytesProcessed: info.Length,
-                                        TotalBytesOptimized: op.Result!.Length));
-                            }
-                        }
-
-                        filesProcessed.Add(resultOp);
-                    };
-                }
-                else
-                if (settings.ProcessMode == ProcessingType.MergeFiles)
-                {
-                    string targetFile = Path.Combine(settings.OutputFolderPath, $"{settings.MergedFileName}.pdf");
-                    Operation<ProcessResultDto> resultOp = new();
-
-                    WeakReferenceMessenger.Default.Send(new ProgressMessage(totalFiles));
-                    WeakReferenceMessenger.Default.Send(new StatusOperationMessage($"Processing {totalFiles} files..."));
-
-                    if (settings.IsGhostScriptEnabled && File.Exists(settings.GhostScriptPath))
-                    {
-                        string firstPass = $"{targetFile}.tmp";
-
-                        StringBuilder fileCompilation = new();
-
-                        foreach (FileDto file in fileList)
-                        {
-                            fileCompilation.Append($"\"{file.FilePath}\" ");
-                        }
-
-                        await RunGsOptimiserAsync(settings.GhostScriptPath,
-                            $" -sDEVICE=pdfwrite -dCompatibilityLevel=\"1.7\" -dPDFSETTINGS={command} -dNOPAUSE -dQUIET -dBATCH -sOutputFile=\"{firstPass}\" {fileCompilation}");
-
-                        Operation<FileInfo> op = await RunOptimiserAsync(filePathIn: firstPass, filePathOut: targetFile, settings.CompressionMode);
-                        if (op.HasSucceeded)
-                        {
-                            resultOp.SetResult(new ProcessResultDto(
-                                TotalBytesProcessed: fileList.Sum(f => new FileInfo(f.FilePath).Length),
-                                TotalBytesOptimized: op.Result!.Length));
-                        }
-
-                        if (File.Exists(firstPass))
-                            File.Delete(firstPass);
-                    }
-                    else
-                    {
-                        Operation<FileInfo> op = await RunOptimiserAsync(fileList, filePathOut: targetFile, settings.CompressionMode);
-                        if (op.HasSucceeded)
-                        {
-                            resultOp.SetResult(new ProcessResultDto(
-                                TotalBytesProcessed: fileList.Sum(m => new FileInfo(m.FilePath).Length),
-                                TotalBytesOptimized: op.Result!.Length));
-                        }
-                    }
-
-                    filesProcessed.Add(resultOp);
-                }
+                await MergeAsync(fileList, cancellationToken);
             }
             else
             {
-                if (settings.ProcessMode == ProcessingType.IndividualFiles)
-                {
-                    foreach (FileDto file in fileList)
-                    {
-                        WeakReferenceMessenger.Default.Send(new ProgressMessage(fileCount * 100 / totalFiles + 1));
-                        WeakReferenceMessenger.Default.Send(new StatusOperationMessage($"Processing file {fileCount++} of {totalFiles}..."));
-
-                        Operation<ProcessResultDto> resultOp = new();
-
-                        string fileName = file.FilePath.TrimEnd(".pdf".ToCharArray());
-                        string targetFile = $"{fileName}{settings.Suffix}.pdf";
-
-                        if (settings.IsGhostScriptEnabled && File.Exists(settings.GhostScriptPath))
-                        {
-                            string firstPass = $"{targetFile}.tmp";
-
-                            await RunGsOptimiserAsync(settings.GhostScriptPath,
-                                $" -sDEVICE=pdfwrite -dCompatibilityLevel=\"1.7\" -dPDFSETTINGS={command} -dNOPAUSE -dQUIET -dBATCH -sOutputFile=\"{firstPass}\" \"{file.FilePath}\" ");
-
-                            Operation<FileInfo> op = await RunOptimiserAsync(filePathIn: firstPass, filePathOut: targetFile, settings.CompressionMode);
-                            if (op.HasSucceeded)
-                            {
-                                FileInfo info = new(file.FilePath);
-                                resultOp.SetResult(new ProcessResultDto(
-                                        TotalBytesProcessed: info.Length,
-                                        TotalBytesOptimized: op.Result!.Length));
-                            }
-
-                            if (File.Exists(firstPass))
-                                File.Delete(firstPass);
-                        }
-                        else
-                        {
-                            Operation<FileInfo> op = await RunOptimiserAsync(filePathIn: file.FilePath, filePathOut: targetFile, settings.CompressionMode);
-                            if (op.HasSucceeded)
-                            {
-                                FileInfo info = new(file.FilePath);
-                                resultOp.SetResult(new ProcessResultDto(
-                                        TotalBytesProcessed: info.Length,
-                                        TotalBytesOptimized: op.Result!.Length));
-                            }
-                        }
-
-                        filesProcessed.Add(resultOp);
-                    };
-                }
-                else
-                {
-                    if (!Path.Exists(Defaults.MergedPath))
-                    {
-                        Directory.CreateDirectory(Defaults.MergedPath);
-                    }
-
-                    string targetFile = Path.Combine(Defaults.MergedPath, $"{settings.MergedFileName}.pdf");
-                    Operation<ProcessResultDto> resultOp = new();
-
-                    WeakReferenceMessenger.Default.Send(new ProgressMessage(totalFiles));
-                    WeakReferenceMessenger.Default.Send(new StatusOperationMessage($"Processing {totalFiles} files..."));
-
-                    if (settings.IsGhostScriptEnabled && File.Exists(settings.GhostScriptPath))
-                    {
-                        string firstPass = $"{targetFile}.tmp";
-
-                        StringBuilder fileCompilation = new();
-
-                        foreach (FileDto file in fileList)
-                        {
-                            fileCompilation.Append($"\"{file.FilePath}\" ");
-                        }
-
-                        await RunGsOptimiserAsync(settings.GhostScriptPath,
-                            $" -sDEVICE=pdfwrite -dCompatibilityLevel=\"1.7\" -dPDFSETTINGS={command} -dNOPAUSE -dQUIET -dBATCH -sOutputFile=\"{firstPass}\" {fileCompilation}");
-
-                        Operation<FileInfo> op = await RunOptimiserAsync(filePathIn: firstPass, filePathOut: targetFile, settings.CompressionMode);
-                        if (op.HasSucceeded)
-                        {
-                            resultOp.SetResult(new ProcessResultDto(
-                                TotalBytesProcessed: fileList.Sum(f => new FileInfo(f.FilePath).Length),
-                                TotalBytesOptimized: op.Result!.Length));
-                        }
-
-                        if (File.Exists(firstPass))
-                            File.Delete(firstPass);
-                    }
-                    else
-                    {
-                        Operation<FileInfo> op = await RunOptimiserAsync(fileList, filePathOut: targetFile, settings.CompressionMode);
-                        if (op.HasSucceeded)
-                        {
-                            resultOp.SetResult(new ProcessResultDto(
-                                TotalBytesProcessed: fileList.Sum(m => new FileInfo(m.FilePath).Length),
-                                TotalBytesOptimized: op.Result!.Length));
-                        }
-                    }
-
-                    filesProcessed.Add(resultOp);
-                }
+                await OptimiseAsync(fileList, cancellationToken);
             }
 
             StatisticsDto savedStats = await configurationService.LoadStatisticsAsync(cancellationToken);
 
-            uint totalFilesProcessed = (uint)filesProcessed.Count;
-            decimal totalBytesProcessed = filesProcessed.Where(op => op.HasSucceeded).Sum(op => op.Result!.TotalBytesProcessed);
-            decimal totalBytesOptimized = filesProcessed.Where(op => op.HasSucceeded).Sum(op => op.Result!.TotalBytesOptimized);
-            decimal totalBytesSaved = totalBytesProcessed - totalBytesOptimized;
+            uint totalFilesProcessed = (uint)_filesProcessed.Count;
+            decimal? totalBytesProcessed = _filesProcessed.Where(op => op.HasSucceeded)?.Sum(op => op.Result!.TotalBytesProcessed);
+            decimal? totalBytesOptimized = _filesProcessed.Where(op => op.HasSucceeded)?.Sum(op => op.Result!.TotalBytesOptimized);
+            decimal? totalBytesSaved = (totalBytesProcessed ?? 0) - (totalBytesOptimized ?? 0);
 
             StatisticsDto updatedStats = new(
                 TotalFilesProcessed: savedStats.TotalFilesProcessed + totalFilesProcessed,
-                TotalMegabytesProcessed: savedStats.TotalMegabytesProcessed + (totalBytesProcessed / OneMiBInBytes),
-                TotalMegabytesOptimised: savedStats.TotalMegabytesOptimised + (totalBytesOptimized / OneMiBInBytes),
-                TotalMegabytesSaved: savedStats.TotalMegabytesSaved + (totalBytesSaved / OneMiBInBytes)
+                TotalMegabytesProcessed: savedStats.TotalMegabytesProcessed + ((totalBytesProcessed ?? 0) / Core.Constants.OneMiBInBytes),
+                TotalMegabytesOptimised: savedStats.TotalMegabytesOptimised + ((totalBytesOptimized ?? 0) / Core.Constants.OneMiBInBytes),
+                TotalMegabytesSaved: savedStats.TotalMegabytesSaved + ((totalBytesSaved ?? 0) / Core.Constants.OneMiBInBytes)
                 );
 
             await configurationService.SaveStatisticsAsync(updatedStats, cancellationToken);
@@ -284,7 +77,148 @@ public class PdfBossService(
         }
     }
 
-    private static Task<Operation<FileInfo>> RunOptimiserAsync(IEnumerable<FileDto> fileList, string filePathOut, int compression)
+    private async Task OptimiseAsync(IEnumerable<FileDto> fileList, CancellationToken cancellationToken)
+    {
+        uint fileCount = 1;
+        uint totalFiles = (uint)fileList.Count();
+
+        string command = _settings!.CompressionMode switch
+        {
+            Core.Constants.CompressionMode.High => "/screen",
+            Core.Constants.CompressionMode.Medium => "/ebook",
+            Core.Constants.CompressionMode.Low => "/printer",
+            _ => "/ebook",
+        };
+
+        foreach (FileDto file in fileList)
+        {
+            WeakReferenceMessenger.Default.Send(new ProgressMessage(fileCount * 100 / totalFiles + 1));
+            WeakReferenceMessenger.Default.Send(new StatusOperationMessage($"Processing file {fileCount++} of {totalFiles}..."));
+
+            Operation<ProcessResultDto> resultOp = new();
+
+            string fileName = file.FilePath.TrimEnd(".pdf".ToCharArray());
+            if (_settings!.IsOutputFolderInUse && !string.IsNullOrEmpty(_settings.OutputFolderPath))
+            {
+                Directory.CreateDirectory(_settings.OutputFolderPath);
+                fileName = Path.Combine(_settings.OutputFolderPath, file.FileName.TrimEnd(".pdf".ToCharArray()));
+            }
+
+            string targetFile = $"{fileName}{_settings.Suffix}.pdf";
+            FileDto tmpFile = new(0, $"{Path.GetFileName(targetFile)}.tmp", $"{targetFile}.tmp");
+
+            if (_settings.IsGhostScriptEnabled && File.Exists(_settings.GhostScriptPath))
+            {
+
+                await RunGsOptimiserAsync(_settings.GhostScriptPath,
+                    $" -sDEVICE=pdfwrite -dCompatibilityLevel=\"1.7\" -dPDFSETTINGS={command} -dNOPAUSE -dQUIET -dBATCH -sOutputFile=\"{tmpFile.FilePath}\" \"{file.FilePath}\" ",
+                    cancellationToken);
+
+                Operation<FileInfo> op = await OptimiseAsync([tmpFile], filePathOut: targetFile, cancellationToken);
+                if (op.HasSucceeded)
+                {
+                    FileInfo info = new(file.FilePath);
+                    resultOp.SetResult(new ProcessResultDto(
+                            TotalBytesProcessed: info.Length,
+                            TotalBytesOptimized: op.Result!.Length));
+                }
+
+                if (File.Exists(tmpFile.FilePath))
+                    File.Delete(tmpFile.FilePath);
+            }
+            else
+            {
+                Operation<FileInfo> op = await OptimiseAsync([file], filePathOut: targetFile, cancellationToken);
+                if (op.HasSucceeded)
+                {
+                    FileInfo info = new(file.FilePath);
+                    resultOp.SetResult(new ProcessResultDto(
+                            TotalBytesProcessed: info.Length,
+                            TotalBytesOptimized: op.Result!.Length));
+                }
+            }
+
+            _filesProcessed!.Add(resultOp);
+        };
+    }
+
+    private async Task MergeAsync(IEnumerable<FileDto> fileList, CancellationToken cancellationToken)
+    {
+        Operation<ProcessResultDto> resultOp = new();
+        string targetFile;
+
+        if (_settings!.IsOutputFolderInUse && !string.IsNullOrEmpty(_settings.OutputFolderPath))
+        {
+            Directory.CreateDirectory(_settings.OutputFolderPath);
+            targetFile = Path.Combine(_settings.OutputFolderPath, $"{_settings.MergedFileName}.pdf");
+        }
+        else
+        {
+            Directory.CreateDirectory(Core.Constants.Defaults.MergedPath);
+            targetFile = Path.Combine(Core.Constants.Defaults.MergedPath, $"{_settings.MergedFileName}.pdf");
+        }
+
+        WeakReferenceMessenger.Default.Send(new ProgressMessage(40));
+        WeakReferenceMessenger.Default.Send(new StatusOperationMessage($"Merging {fileList.Count()} files..."));
+
+        if (_settings.IsGhostScriptEnabled && File.Exists(_settings.GhostScriptPath))
+        {
+            FileDto tmpFile = new(0, $"{Path.GetFileName(targetFile)}.tmp", $"{targetFile}.tmp");
+
+            StringBuilder fileCompilation = new();
+            foreach (FileDto file in fileList)
+            {
+                fileCompilation.Append($"\"{file.FilePath}\" ");
+            }
+
+            string command = _settings.CompressionMode switch
+            {
+                Core.Constants.CompressionMode.High => "/screen",
+                Core.Constants.CompressionMode.Medium => "/ebook",
+                Core.Constants.CompressionMode.Low => "/printer",
+                _ => "/ebook",
+            };
+
+            WeakReferenceMessenger.Default.Send(new ProgressMessage(60));
+            WeakReferenceMessenger.Default.Send(new StatusOperationMessage($"Applying first pass optimisations..."));
+
+            await RunGsOptimiserAsync(_settings.GhostScriptPath,
+                $" -sDEVICE=pdfwrite -dCompatibilityLevel=\"1.7\" -dPDFSETTINGS={command} -dNOPAUSE -dQUIET -dBATCH -sOutputFile=\"{tmpFile.FilePath}\" {fileCompilation}",
+                cancellationToken);
+
+            WeakReferenceMessenger.Default.Send(new ProgressMessage(80));
+            WeakReferenceMessenger.Default.Send(new StatusOperationMessage($"Applying final optimisations..."));
+
+            Operation<FileInfo> op = await OptimiseAsync([tmpFile], targetFile, cancellationToken);
+            if (op.HasSucceeded)
+            {
+                resultOp.SetResult(new ProcessResultDto(
+                    TotalBytesProcessed: fileList.Sum(f => new FileInfo(f.FilePath).Length),
+                    TotalBytesOptimized: op.Result!.Length));
+            }
+
+            WeakReferenceMessenger.Default.Send(new ProgressMessage(90));
+            WeakReferenceMessenger.Default.Send(new StatusOperationMessage($"Applying cleanup..."));
+            if (File.Exists(tmpFile.FilePath))
+                File.Delete(tmpFile.FilePath);
+        }
+        else
+        {
+            WeakReferenceMessenger.Default.Send(new ProgressMessage(50));
+            WeakReferenceMessenger.Default.Send(new StatusOperationMessage($"Applying optimisations..."));
+            Operation<FileInfo> op = await OptimiseAsync(fileList, targetFile, cancellationToken);
+            if (op.HasSucceeded)
+            {
+                resultOp.SetResult(new ProcessResultDto(
+                    TotalBytesProcessed: fileList.Sum(f => new FileInfo(f.FilePath).Length),
+                    TotalBytesOptimized: op.Result!.Length));
+            }
+        }
+
+        _filesProcessed!.Add(resultOp);
+    }
+
+    private Task<Operation<FileInfo>> OptimiseAsync(IEnumerable<FileDto> fileList, string filePathOut, CancellationToken cancellationToken)
     {
         TaskCompletionSource<Operation<FileInfo>> taskCompletion = new();
         Operation<FileInfo> operation = new();
@@ -299,43 +233,33 @@ public class PdfBossService(
                 empty.Pages(file.FilePath, string.Empty);
             }
 
-            int compressionLevel = compression switch
+            switch (_settings!.CompressionMode)
             {
-                CompressionType.High => 9,
-                CompressionType.Medium => 7,
-                CompressionType.Low => 3,
-                _ => 7,
+                case (Core.Constants.CompressionMode.High):
+                    job.CompressionLevel(9)
+                        .CompressStreams(true)
+                        .StreamData(StreamData.Compress)
+                        .RecompressFlate()
+                        .ObjectStreams(ObjectStreams.Generate)
+                        .OptimizeImages();
+                    break;
+                case (Core.Constants.CompressionMode.Medium):
+                    job.CompressionLevel(7)
+                        .CompressStreams(true)
+                        .StreamData(StreamData.Compress)
+                        .RecompressFlate()
+                        .ObjectStreams(ObjectStreams.Generate)
+                        .OptimizeImages()
+                        .Linearize();
+                    break;
+                case (Core.Constants.CompressionMode.Low):
+                    job.CompressionLevel(3)
+                        .OptimizeImages()
+                        .Linearize();
+                    break;
             };
 
-            job.OutputFile(filePathOut)
-                .CompressionLevel(compressionLevel);
-
-            if (compression == CompressionType.High)
-            {
-                job.CompressStreams(true)
-                .StreamData(StreamData.Compress)
-                .RecompressFlate()
-                .ObjectStreams(ObjectStreams.Generate)
-                .OptimizeImages();
-            }
-            else
-            if (compression == CompressionType.Medium)
-            {
-                job.CompressStreams(true)
-                .StreamData(StreamData.Compress)
-                .RecompressFlate()
-                .ObjectStreams(ObjectStreams.Generate)
-                .OptimizeImages()
-                .Linearize();
-            }
-            else
-            if (compression == CompressionType.Low)
-            {
-                job.OptimizeImages()
-                .Linearize();
-            }
-
-            ExitCode result = job.Run(out _);
+            ExitCode result = job.OutputFile(filePathOut).Run(out _);
 
             if (result == ExitCode.Success)
             {
@@ -351,136 +275,82 @@ public class PdfBossService(
         return taskCompletion.Task;
     }
 
-    private static Task<Operation<FileInfo>> RunOptimiserAsync(string filePathIn, string filePathOut, int compression)
+    private static Task<Operation> RunGsOptimiserAsync(string executablePath, string command, CancellationToken cancellationToken)
     {
-        TaskCompletionSource<Operation<FileInfo>> taskCompletion = new();
-        Operation<FileInfo> operation = new();
+        TaskCompletionSource<Operation> taskCompletion = new();
 
         try
         {
-            int compressionLevel = compression switch
+            System.Diagnostics.ProcessStartInfo startInfo = new()
             {
-                CompressionType.High => 9,
-                CompressionType.Medium => 7,
-                CompressionType.Low => 3,
-                _ => 1,
+                WindowStyle = System.Diagnostics.ProcessWindowStyle.Hidden,
+                FileName = executablePath,
+                Arguments = command
             };
 
-            using QPdfNet.Job job = new();
-            job.InputFile(filePathIn)
-                .OutputFile(filePathOut)
-                .CompressionLevel(compressionLevel);
+            System.Diagnostics.Process process = new()
+            {
+                StartInfo = startInfo,
+                EnableRaisingEvents = true
+            };
 
-            if (compression == CompressionType.High)
+            process.Exited += (sender, args) =>
             {
-                job.CompressStreams(true)
-                .StreamData(StreamData.Compress)
-                .RecompressFlate()
-                .ObjectStreams(ObjectStreams.Generate)
-                .OptimizeImages();
-            }
-            else
-            if (compression == CompressionType.Medium)
-            {
-                job.CompressStreams(true)
-                .StreamData(StreamData.Compress)
-                .RecompressFlate()
-                .ObjectStreams(ObjectStreams.Generate)
-                .OptimizeImages()
-                .Linearize();
-            }
-            else
-            if (compression == CompressionType.Low)
-            {
-                job.OptimizeImages()
-                .Linearize();
-            }
+                Operation op = new();
+                if (process.ExitCode == Core.Constants.ReturnCode.Success)
+                {
+                    op.SetSucceeded();
+                }
+                taskCompletion.SetResult(op);
+                process.Dispose();
+            };
 
-            ExitCode result = job.Run(out _);
-
-            if (result == ExitCode.Success)
-            {
-                operation.SetResult(new FileInfo(filePathOut));
-            }
+            process.Start();
         }
         catch (Exception e)
         {
-            operation.SetFailed(e.Message);
+            taskCompletion.SetResult(new Operation(message: e.Message));
         }
 
-        taskCompletion.SetResult(operation);
         return taskCompletion.Task;
     }
 
-    private static Task<int> RunGsOptimiserAsync(string executablePath, string command)
+    public async Task<Operation> SplitAsync(FileDto file, CancellationToken cancellationToken)
     {
-        TaskCompletionSource<int> taskCompletion = new();
+        Operation operation = new();
 
-        System.Diagnostics.ProcessStartInfo startInfo = new()
-        {
-            WindowStyle = System.Diagnostics.ProcessWindowStyle.Hidden,
-            FileName = executablePath,
-            Arguments = command
-        };
-
-        System.Diagnostics.Process process = new()
-        {
-            StartInfo = startInfo,
-            EnableRaisingEvents = true
-        };
-
-        process.Exited += (sender, args) =>
-        {
-            taskCompletion.SetResult(process.ExitCode);
-            process.Dispose();
-        };
-
-        process.Start();
-
-        return taskCompletion.Task;
-    }
-
-    public async Task SplitAsync(FileDto file, CancellationToken cancellationToken)
-    {
         try
         {
             ConfigurationDto settings = await configurationService.LoadConfigurationAsync(cancellationToken);
-            string fileName;
-            string targetFile;
+
+            string fileName = file.FilePath.TrimEnd(".pdf".ToCharArray());
 
             if (settings.IsOutputFolderInUse && !string.IsNullOrEmpty(settings.OutputFolderPath))
             {
-                if (!Path.Exists(settings.OutputFolderPath))
-                {
-                    Directory.CreateDirectory(settings.OutputFolderPath);
-                }
-
+                Directory.CreateDirectory(settings.OutputFolderPath);
                 fileName = Path.Combine(settings.OutputFolderPath, file.FileName.TrimEnd(".pdf".ToCharArray()));
-                targetFile = $"{fileName}{settings.Suffix}_%d.pdf";
             }
-            else
-            {
-                fileName = file.FilePath.TrimEnd(".pdf".ToCharArray());
-                targetFile = $"{fileName}{settings.Suffix}.pdf";
-            }
+
+            string targetFile = $"{fileName}{settings.Suffix}.pdf";
 
             WeakReferenceMessenger.Default.Send(new StatusOperationMessage($"Splitting pages..."));
 
             using QPdfNet.Job job = new();
-            ExitCode result = job.InputFile(file.FilePath)
+            job.InputFile(file.FilePath)
                 .SplitPages()
-                .OutputFile(targetFile)
-                .CompressStreams(true)
-                .StreamData(StreamData.Compress)
-                .CompressionLevel(9)
-                .RecompressFlate()
-                .ObjectStreams(ObjectStreams.Generate)
-                .OptimizeImages()
-                .Run(out _);
+                .RemoveUnreferencedResources(AutoYesNo.Auto);
+
+            ExitCode result = job.OutputFile(targetFile).Run(out _);
+            if (result == ExitCode.Success)
+            {
+                operation.SetSucceeded();
+            }
         }
         catch (Exception e)
         {
-            logger.LogError("{m}", e.Message);
+            operation.SetFailed(e.Message);
         }
+
+        return operation;
     }
 }
