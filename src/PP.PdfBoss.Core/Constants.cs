@@ -43,30 +43,35 @@ Unless required by applicable law or agreed to in writing, software distributed 
 
     public const int MaxParallelTasks = 4;
 
-    public record ProcessingType
+    public record ReturnCode
+    {
+        public const int Success = 0;
+    }
+
+    public record ProcessMode
     {
         public const int IndividualFiles = 0;
         public const int MergeFiles = 1;
     }
 
-    public static readonly IEnumerable<ProcessModeDto> ProcessMode =
+    public static readonly IEnumerable<ProcessModeDto> ProcessModeList =
     [
-        new ProcessModeDto(ProcessingType.IndividualFiles, "Individual Files"),
-        new ProcessModeDto(ProcessingType.MergeFiles, "Merge Files")
+        new ProcessModeDto(ProcessMode.IndividualFiles, "Individual Files"),
+        new ProcessModeDto(ProcessMode.MergeFiles, "Merge Files")
     ];
 
-    public record CompressionType
+    public record CompressionMode
     {
         public const int High = 0;
         public const int Medium = 1;
         public const int Low = 2;
     }
 
-    public static readonly IEnumerable<ProcessModeDto> CompressionMode =
+    public static readonly IEnumerable<ProcessModeDto> CompressionModeList =
     [
-        new ProcessModeDto(CompressionType.High, "High"),
-        new ProcessModeDto(CompressionType.Medium, "Medium"),
-        new ProcessModeDto(CompressionType.Low, "Low")
+        new ProcessModeDto(CompressionMode.High, "High"),
+        new ProcessModeDto(CompressionMode.Medium, "Medium"),
+        new ProcessModeDto(CompressionMode.Low, "Low")
     ];
 
     public record Defaults

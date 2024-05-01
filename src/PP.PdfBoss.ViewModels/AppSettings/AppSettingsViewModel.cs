@@ -43,7 +43,7 @@ public partial class AppSettingsViewModel(
     private string _title = "Settings";
 
     [ObservableProperty]
-    private ObservableCollection<ProcessModeDto> _processModeList = new(Core.Constants.ProcessMode);
+    private ObservableCollection<ProcessModeDto> _processModeList = new(Core.Constants.ProcessModeList);
 
     [Required(ErrorMessage = "Required.")]
     [NotifyDataErrorInfo]
@@ -54,7 +54,7 @@ public partial class AppSettingsViewModel(
     private int? _processModeValue = 0;
 
     [ObservableProperty]
-    private ObservableCollection<ProcessModeDto> _compressionModeList = new(Core.Constants.CompressionMode);
+    private ObservableCollection<ProcessModeDto> _compressionModeList = new(Core.Constants.CompressionModeList);
 
     [Required(ErrorMessage = "Required.")]
     [NotifyDataErrorInfo]

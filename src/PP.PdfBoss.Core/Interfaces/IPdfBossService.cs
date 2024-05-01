@@ -21,6 +21,6 @@ namespace PP.PdfBoss.Core.Interfaces;
 
 public interface IPdfBossService
 {
-    Task OptimiseAsync(IEnumerable<FileDto> fileList, CancellationToken cancellationToken = default);
-    Task SplitAsync(FileDto fileItem, CancellationToken cancellationToken = default);
+    Task ProcessAsync(IEnumerable<FileDto> fileList, CancellationToken cancellationToken = default);
+    Task<Operation> SplitAsync(FileDto file, CancellationToken cancellationToken = default);
 }

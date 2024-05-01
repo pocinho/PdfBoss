@@ -27,7 +27,7 @@ public class Operation
     {
     }
 
-    public Operation(string? message = null, bool success = false)
+    public Operation(bool success = false, string? message = null)
     {
         Message = message;
         _success = success;

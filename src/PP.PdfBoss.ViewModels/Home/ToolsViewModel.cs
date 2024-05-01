@@ -81,7 +81,6 @@ public partial class ToolsViewModel(
         }
     }
 
-
     [RelayCommand(CanExecute = nameof(CanLoad))]
     private void LoadFiles()
     {
@@ -162,7 +161,7 @@ public partial class ToolsViewModel(
 
             _ = DialogHost.Show(dialog, "ShellDialog");
 
-            await Task.Run(async () => await pdfBossService.OptimiseAsync(FileList!));
+            await Task.Run(async () => await pdfBossService.ProcessAsync(FileList!));
 
             (dialog.DataContext as ProcessingDialogViewModel)!.IsActive = false;
         }
